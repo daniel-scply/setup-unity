@@ -12,6 +12,7 @@ async function run() {
         const unityModulesChild = getInputAsBool('unity-modules-child');
         const installPath = core.getInput('install-path');
         const projectPath = core.getInput('project-path');
+        const architecture = core.getInput('architecture');
         const selfHosted = getInputAsBool('self-hosted');
 
         if (!unityVersion) {
@@ -20,7 +21,7 @@ async function run() {
             unityVersionChangeset = await findVersionChangeset(unityVersion);
         }
         const unityHubPath = await installUnityHub(selfHosted);
-        const unityPath = await installUnityEditor(unityHubPath, installPath, unityVersion, unityVersionChangeset, selfHosted);
+        const unityPath = await installUnityEditor(unityHubPath, installPath, architecture, unityVersion, unityVersionChangeset, selfHosted);
         if (unityModules.length > 0) {
             await installUnityModules(unityHubPath, unityVersion, unityModules, unityModulesChild);
         }
@@ -79,7 +80,7 @@ async function installUnityHub(selfHosted) {
     return unityHubPath;
 }
 
-async function installUnityEditor(unityHubPath, installPath, unityVersion, unityVersionChangeset, selfHosted) {
+async function installUnityEditor(unityHubPath, installPath, architecture, unityVersion, unityVersionChangeset, selfHosted) {
     let unityPath = await findUnity(unityHubPath, unityVersion);
     if (!unityPath) {
         if (installPath) {
@@ -87,9 +88,10 @@ async function installUnityEditor(unityHubPath, installPath, unityVersion, unity
                 await execute(`mkdir -p "${installPath}"`, { sudo: !selfHosted });
                 await execute(`chmod -R o+rwx "${installPath}"`, { sudo: !selfHosted });
             }
+
             await executeHub(unityHubPath, `install-path --set "${installPath}"`);
         }
-        await executeHub(unityHubPath, `install --version ${unityVersion} --changeset ${unityVersionChangeset}`);
+        await executeHub(unityHubPath, `install --version ${unityVersion} --changeset ${unityVersionChangeset} --architecture ${architecture}`);
         unityPath = await findUnity(unityHubPath, unityVersion);
         if (!unityPath) {
             throw new Error('unity editor installation failed');

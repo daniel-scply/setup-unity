@@ -39,6 +39,10 @@ inputs:
     description: Automatically installs all child modules of selected modules. For example, android-open-jdk and android-sdk-ndk-tools for android
     required: false
     default: true
+  architecture:
+    description: What Unity Editor architecture to install. Values are x86_64 or arm64.
+    required: false
+    default: x86_64
   project-path:
     description: Path to Unity project. Used to find Unity version
     required: false
